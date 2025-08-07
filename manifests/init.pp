@@ -160,6 +160,9 @@ class pe_patch (
   Enum['present', 'absent'] $ensure  = 'present',
 ) {
 
+  # ensure that the tag will not collide with other top-level tags
+  tag('pe_patch_only-1fc83547-6b51-499f-98cd-58e25b2288c7')
+
   if defined(Class['os_patching']) {
     notify { 'os_patching warning':
       message => 'This node currently has the os_patching class applied. In order to use pe_patch, please remove os_patching from this node first. The pe_patch class will not be applied on this puppet run.',
@@ -380,13 +383,13 @@ class pe_patch (
     case $::kernel {
       'Linux': {
 
-        if ( $::osfamily == 'RedHat' and $manage_yum_utils) {
+        if ( $facts['os']['family'] == 'RedHat' and $manage_yum_utils) {
           package { 'yum-utils':
             ensure => $yum_utils,
           }
         }
 
-        if ( $::osfamily == 'RedHat' and $manage_delta_rpm) {
+        if ( $facts['os']['family'] == 'RedHat' and $manage_delta_rpm) {
           if (Integer($facts['os']['release']['major']) < 8 or $facts['os']['name'] == 'Fedora') {
             package { 'deltarpm':
               ensure => $delta_rpm,
@@ -399,7 +402,7 @@ class pe_patch (
           }
         }
 
-        if ( $::osfamily == 'RedHat' and $manage_yum_plugin_security) {
+        if ( $facts['os']['family'] == 'RedHat' and $manage_yum_plugin_security) {
           package { 'yum-plugin-security':
             ensure => $yum_plugin_security,
           }
